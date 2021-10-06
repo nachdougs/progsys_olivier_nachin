@@ -6,6 +6,7 @@
 int main(void)
 {
     int     id;
+    int     status;
     pid_t   pid;
 
     printf("Hello world\n");
@@ -34,11 +35,9 @@ int main(void)
         }
         else
         {
-            pid = wait(NULL);
+            pid = wait(&status);
             if (pid >= 0)
-                printf("Le fils vient de se terminer, avec le code retour : %d\n", pid);
-            else
-                printf("Mon fils est déjà terminé, pid a la valeur : %d\n", pid);
+                printf("Le fils vient de se terminer, avec le code retour : %d\n", WEXITSTATUS(status));
             printf("Je suis le père !\n");
             printf("Mon PID est : %d\nCelui de mon père est : %d\n", getpid(), getppid());
             printf("Voici un nombre aléatoire : %d\n", rand() % 100);
