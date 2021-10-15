@@ -9,11 +9,12 @@ Par contre, lorsqu’on tue le père, le fils n’est pas tué !
 Il faut donc faire en sorte que lorsqu’on tue le père, le fils soit tué aussi.
 */
 
+int id;
 
 void stop_handler(int sig)
 {
     printf("Signal reçu : %d\nOn tue le fils\n", sig);
-    kill(getpid() + 1, SIGTERM); // je n’ai pas trouvé comment faire pour tuer le fils plus proprement...
+    kill(id, SIGTERM);
     printf("On tue le père à présent\n");
     exit (EXIT_SUCCESS);
 }
@@ -21,7 +22,6 @@ void stop_handler(int sig)
 
 int main(void)
 {
-    int     id;
     int     rand_int_p;
     int     rand_int_c;
     int     tube[2];
@@ -42,6 +42,7 @@ int main(void)
 
         action.sa_handler = stop_handler;
         sigaction(SIGTERM, &action, NULL);
+        sigaction(SIGINT, &action, NULL);
         
         while (1)
         {
