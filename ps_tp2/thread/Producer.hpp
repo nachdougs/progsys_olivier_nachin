@@ -29,11 +29,12 @@ public:
 
         for (unsigned int i = 0; i < nb_messages_ ; i++)
         {
+            
             nb = random_engine_();
             osyncstream synced_out(std::cout);
-            synced_out << "--- Envoi du message : " << nb << " numéro : " << i << " par le producteur ---\n";
+            synced_out << "Producteur n°" << name_ << " envoie le message : " << nb << "\n";
             box_.put(nb);
-            std::this_thread::sleep_for( milliseconds{ random_engine_() });         
+            std::this_thread::sleep_for( milliseconds{ random_engine_() });  
         }
     }
 };

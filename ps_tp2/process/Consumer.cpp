@@ -27,20 +27,31 @@ public:
     using ProdOrCons::ProdOrCons;
  
     void operator()() override {
-        // TODO : déposer dans box nb_messages nombres entiers positifs avec attente
-        // aléatoire entre chaque. Afficher des messages, via un osyncstream,
-        // pour suivre l'avancement.
+        using   milliseconds = std::chrono::duration< int, std::milli >;
+
+        for (unsigned int i = 0 ; i < nb_messages_ ; i++) 
+        {
+            std::cout << "Consommateur n°" << name_ << " lit le message : " << box_.get() << "\n";
+            std::this_thread::sleep_for( milliseconds{ random_engine_() });
+        }
     }
 };
 
-
 int main ()
 {
-    using namespace boost::interprocess;
-
     // TODO : accéder à la mémoire partagée, la projeter en mémoire,
     // y accéder comme boîte à lettres, lancer le consommateur
+
+    using namespace boost::interprocess;
+    shared_memory_object shm_obj (open_only, "shared_memory", read_only);
+    mapped_region region(shm_obj, read_only);
+    void *addr = region.get_address();
+    MessageBox * box = static_cast<MessageBox*>(addr);
+    // code principal
+    Random  generator { 2000 };
+    Consumer cons(1, *box, generator, 20);
+    cons();
+    shared_memory_object::remove("shared_memory");
     
     return 0;
 }
-

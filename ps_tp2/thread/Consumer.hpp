@@ -26,8 +26,7 @@ public:
 
         for (unsigned int i = 0 ; i < nb_messages_ ; i++) 
         {
-            osyncstream(std::cout) << "--- Lecture du message numéro : "
-            << i << " par le consommateur qui contient le nombre : " << box_.get() << " ---\n";
+            osyncstream(std::cout) << "Consommateur n°" << name_ << " lit le message : " << box_.get() << "\n";
             std::this_thread::sleep_for( milliseconds{ random_engine_() });
         }
     }

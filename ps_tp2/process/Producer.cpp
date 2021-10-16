@@ -21,21 +21,53 @@
  * Producteur de messages
  */
 class Producer : public ProdOrCons {
+public:
     // Le constructeur de ProdOrCons peut être utilisé pour Producer
     using ProdOrCons::ProdOrCons;
  
     void operator()() override {
-        // TODO : déposer dans box nb_messages nombres entiers positifs avec attente
-        // aléatoire entre chaque. Afficher des messages pour suivre l'avancement.
+        int     nb;
+        using   milliseconds = std::chrono::duration< int, std::milli >;
+
+        for (unsigned int i = 0; i < nb_messages_ ; i++)
+        {
+            nb = random_engine_();
+            box_.put(nb);
+            std::cout << "Producteur n°" << name_ << " envoie le message : " << nb << "\n";
+            std::this_thread::sleep_for( milliseconds{ random_engine_() });  
+        }
     }
 };
  
 int main()
 {
     using namespace boost::interprocess;
+    
+    // destruction de la mémoire partagée
+    struct shm_remove
+    {
+        shm_remove() { shared_memory_object::remove("shared_memory"); }
+        ~shm_remove(){ shared_memory_object::remove("shared_memory"); }
+    } remover;
 
-    // TODO : créer la mémoire partagée, la projeter en mémoire,
-    // y construire la boîte à lettres, lancer le producteur
+    // création de la mémoire partagée
+    shared_memory_object shm_obj (create_only, "shared_memory", read_write);
+    // choix de la taille de la mémoire partagée
+    shm_obj.truncate(sizeof(MessageBox));
+    // mappage de la mémoire partagée
+    mapped_region region(shm_obj, read_write);
+    void *addr = region.get_address();
+    // création de la boîte
+    MessageBox * box = new(addr) MessageBox();
+
+    // Code principal :
+    Random  generator { 2000 };
+    Producer prod(1, *box, generator, 20);
+
+    prod();
+
+    // destruction de la mémoire partagée
+    shared_memory_object::remove("shared_memory");
     
     return 0;
 }
